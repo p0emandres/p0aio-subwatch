@@ -9,14 +9,6 @@ It is the manual spreadsheet with the tedious half automated. The judgement half
 who gets access, comps, refunds, anything unusual — stays human, and a human edit
 always wins over anything this file computes.
 
-ONE ASSUMPTION THAT TURNED OUT TO BE WRONG, kept here because it cost real work: we
-believed the collection had no burn path, having checked the implementation the clone
-FACTORY points at. OpenSea Studio does not use that factory. The collection it really
-creates pins a different, ERC721A-based implementation that DOES expose `burn(uint256)`
-to any holder, and burning survives the seal. Ids therefore gap, `totalSupply()` falls,
-and any scan bounded by it goes blind to every token above the gap. Verified on a fork
-against the real collection, not inferred.
-
 KEYED BY TOKEN ID, NOT BY WALLET, and that is the whole reason this file is shaped the
 way it is. Paid time is a property of the ASSET: sell the NFT and the remaining time
 goes with it, which is what makes an NFT with months on it worth more to a buyer. Key
