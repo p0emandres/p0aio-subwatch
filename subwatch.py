@@ -1,33 +1,23 @@
-"""Subscription watcher — semi-automated manual tracking.
+"""subwatch — an on-chain USDC access-pass watcher.
 
-WHAT THIS IS. Collectors send USDC to one address we control. This notices the
-payment, works out how many months it bought, and extends that wallet's paid-until
-date. Everything it cannot decide confidently, it FLAGS for a human instead of
-guessing.
-
-It is the manual spreadsheet with the tedious half automated. The judgement half —
-who gets access, comps, refunds, anything unusual — stays human, and a human edit
-always wins over anything this file computes.
+WHAT THIS IS. Members send USDC to one receiving wallet. This notices each payment,
+works out how many months it bought, and moves that member's paid-through date forward.
+Anything it cannot decide confidently, it FLAGS for a human instead of guessing — and a
+human edit to the ledger always wins over what this file computes.
 
 KEYED BY TOKEN ID, NOT BY WALLET, and that is the whole reason this file is shaped the
 way it is. Paid time is a property of the ASSET: sell the NFT and the remaining time
 goes with it, which is what makes an NFT with months on it worth more to a buyer. Key
 it by wallet instead and the seller keeps the time while the buyer gets nothing — a
-different product, and not the one that was promised. `src/Subscription.sol` stores
-`tokenId -> paidUntil`; so does this. They agree by construction rather than by
-intention, and migrating later is an import.
+different product, and not the one that was promised. It stores `tokenId -> paidUntil`,
+the same shape a contract would — so migrating on-chain later is an import, not a rewrite.
 
 Which token a payer holds is resolved AT THE BLOCK THE PAYMENT LANDED IN, not at scan
 time. Reading it later would mean a transfer between paying and scanning silently
 credits the wrong token, and the answer would depend on when the watcher happened to
 run.
 
-WHY NOT A PAYMENT PROCESSOR. Selling automated-purchase software is a category card
-processors get nervous about, and being switched off mid-month with subscribers who
-have already paid is a worse failure than any amount of manual work. A wallet cannot
-be deplatformed.
-
-WHY THIS AND NOT A CONTRACT. An on-chain Subscription contract (USDC in, a paid-until
+WHY A WATCHER, NOT A CONTRACT. An on-chain Subscription contract (USDC in, a paid-until
 per token out) is the trustless version of exactly this. It was built and then RETIRED
 for launch simplicity: a contract is immutable and deserves an audit, while this watcher
 is patchable, custodies nothing, and ships today. The ledger below keeps the same shape —
@@ -35,7 +25,7 @@ token -> paid-until — so adopting a contract later is an import, not a rewrite
 trade-off is honest: a contract's paid-until would be trustless on-chain; here the
 PAYMENT is public on-chain and the CREDITING is this open-source, non-custodial code.
 
-SECURITY POSTURE, and it matches the gate's:
+SECURITY POSTURE:
 
   * READ ONLY. This module never signs anything and never holds a key. It calls
     eth_getLogs and eth_call and nothing else. The receiving wallet's key lives
